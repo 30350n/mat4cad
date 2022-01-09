@@ -31,13 +31,17 @@ PLASTIC_TRANSPARENT_DIFFUSED = Material(
 PLASTIC_TRANSPARENT_CLEAR = PLASTIC_TRANSPARENT_DIFFUSED.copy()
 PLASTIC_TRANSPARENT_CLEAR.transmission_roughness = 0.02
 
-(METAL_BRIGHT := _METAL_BASE.copy()).diffuse = SIGNAL_GREY
-(METAL_BRIGHT_MATTE  := METAL_BRIGHT.copy()).roughness = 0.6
-(METAL_BRIGHT_GLOSSY := METAL_BRIGHT.copy()).roughness = 0.05
+(METAL_LIGHT_GREY := _METAL_BASE.copy()).diffuse = LIGHT_GREY
+(METAL_LIGHT_GREY_MATTE  := METAL_LIGHT_GREY.copy()).roughness = 0.6
+(METAL_LIGHT_GREY_GLOSSY := METAL_LIGHT_GREY.copy()).roughness = 0.05
 
-(METAL_DARK := _METAL_BASE.copy()).diffuse = MOUSE_GREY
-(METAL_DARK_MATTE  := METAL_DARK.copy()).roughness = 0.6
-(METAL_DARK_GLOSSY := METAL_DARK.copy()).roughness = 0.05
+(METAL_SIGNAL_GREY := _METAL_BASE.copy()).diffuse = SIGNAL_GREY
+(METAL_SIGNAL_GREY_MATTE  := METAL_SIGNAL_GREY.copy()).roughness = 0.6
+(METAL_SIGNAL_GREY_GLOSSY := METAL_SIGNAL_GREY.copy()).roughness = 0.05
+
+(METAL_MOUSE_GREY := _METAL_BASE.copy()).diffuse = MOUSE_GREY
+(METAL_MOUSE_GREY_MATTE  := METAL_MOUSE_GREY.copy()).roughness = 0.6
+(METAL_MOUSE_GREY_GLOSSY := METAL_MOUSE_GREY.copy()).roughness = 0.05
 
 (METAL_BRASS := _METAL_BASE.copy()).diffuse = hex2rgb("b1a342")
 (METAL_BRASS_MATTE  := METAL_BRASS.copy()).roughness = 0.6
@@ -75,21 +79,25 @@ MATERIALS = {
     "plastic-transparent-diffused":    PLASTIC_TRANSPARENT_DIFFUSED,
     "plastic-transparent-clear":       PLASTIC_TRANSPARENT_CLEAR,
     
-    "metal-bright-matte":              METAL_BRIGHT_MATTE,
-    "metal-bright":                    METAL_BRIGHT,
-    "metal-bright-glossy":             METAL_BRIGHT_GLOSSY,
+    "metal-light_grey-matte":          METAL_LIGHT_GREY_MATTE,
+    "metal-light_grey":                METAL_LIGHT_GREY,
+    "metal-light_grey-glossy":         METAL_LIGHT_GREY_GLOSSY,
     
-    "metal-dark-matte":                METAL_DARK_MATTE,
-    "metal-dark":                      METAL_DARK,
-    "metal-dark-glossy":               METAL_DARK_GLOSSY,
+    "metal-signal_grey-matte":         METAL_SIGNAL_GREY_MATTE,
+    "metal-signal_grey":               METAL_SIGNAL_GREY,
+    "metal-signal_grey-glossy":        METAL_SIGNAL_GREY_GLOSSY,
+    
+    "metal-mouse_grey-matte":          METAL_MOUSE_GREY_MATTE,
+    "metal-mouse_grey":                METAL_MOUSE_GREY,
+    "metal-mouse_grey-glossy":         METAL_MOUSE_GREY_GLOSSY,
 
     "metal-brass-matte":               METAL_BRASS_MATTE,
     "metal-brass":                     METAL_BRASS,
     "metal-brass-glossy":              METAL_BRASS_GLOSSY,
 
-    "metal_painted-black-matte":       METAL_PAINTED_JET_BLACK_MATTE,
-    "metal_painted-black":             METAL_PAINTED_JET_BLACK,
-    "metal_painted-black-glossy":      METAL_PAINTED_JET_BLACK_GLOSSY,
+    "metal_painted-jet_black-matte":   METAL_PAINTED_JET_BLACK_MATTE,
+    "metal_painted-jet_black":         METAL_PAINTED_JET_BLACK,
+    "metal_painted-jet_black-glossy":  METAL_PAINTED_JET_BLACK_GLOSSY,
 
     "pcb-brown":                       PCB_BROWN,
 }
