@@ -64,16 +64,16 @@ MATERIALS = {
     "plastic-transparent-clear":       PLASTIC_TRANSPARENT_CLEAR,
     
     "metal-bright-matte":              METAL_BRIGHT_MATTE,
-    "metal-bright":                    METAL_BRIGHT_MATTE,
-    "metal-bright-glossy":             METAL_BRIGHT_MATTE,
+    "metal-bright":                    METAL_BRIGHT,
+    "metal-bright-glossy":             METAL_BRIGHT_GLOSSY,
 
     "metal-brass-matte":               METAL_BRASS_MATTE,
-    "metal-brass":                     METAL_BRASS_MATTE,
-    "metal-brass-glossy":              METAL_BRASS_MATTE,
+    "metal-brass":                     METAL_BRASS,
+    "metal-brass-glossy":              METAL_BRASS_GLOSSY,
 
     "metal_painted-black-matte":       METAL_PAINTED_JET_BLACK_MATTE,
-    "metal_painted-black":             METAL_PAINTED_JET_BLACK_MATTE,
-    "metal_painted-black-glossy":      METAL_PAINTED_JET_BLACK_MATTE,
+    "metal_painted-black":             METAL_PAINTED_JET_BLACK,
+    "metal_painted-black-glossy":      METAL_PAINTED_JET_BLACK_GLOSSY,
 
     "pcb-brown":                       PCB_BROWN,
 }
