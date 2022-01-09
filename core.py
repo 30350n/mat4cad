@@ -36,21 +36,21 @@ def hex2rgb(hex_string):
 
 def srgb2lin(color):
     result = []
-    for component in color:
-        if component <= 0.0404482362771082:
-            lin = component / 12.92
+    for srgb in color:
+        if srgb <= 0.0404482362771082:
+            lin = srgb / 12.92
         else:
-            lin = pow(((component + 0.055) / 1.055), 2.4)
+            lin = pow(((srgb + 0.055) / 1.055), 2.4)
         result.append(lin)
     return result
 
 
 def lin2srgb(color):
     result = []
-    for component in color:
+    for lin in color:
         if lin > 0.0031308:
-            component = 1.055 * (pow(lin, (1.0 / 2.4))) - 0.055
+            srgb = 1.055 * (pow(lin, (1.0 / 2.4))) - 0.055
         else:
-            component = 12.92 * lin
-        result.append(lin)
+            srgb = 12.92 * lin
+        result.append(srgb)
     return result
