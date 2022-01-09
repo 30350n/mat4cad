@@ -53,7 +53,7 @@ PLASTIC_TRANSPARENT_CLEAR.transmission_roughness = 0.02
 
 PCB_BROWN = _PCB_BASE.copy()
 PCB_BROWN.diffuse = (0.269, 0.152, 0.0)
-PCB_BROWN.subsurface_color = (0.106, 0.272, 0.051)
+PCB_BROWN.subsurface_color = (0.106, 0.070, 0.051)
 
 MATERIALS = {
     "plastic-jet_black-matte":         PLASTIC_JET_BLACK_MATTE,

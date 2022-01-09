@@ -11,7 +11,7 @@ def setup_node_tree(self: Material, node_tree: bpy.types.NodeTree):
     node_shader.inputs["Metallic"].default_value = self.metallic
     node_shader.inputs["Roughness"].default_value = self.roughness
     node_shader.inputs["Subsurface"].default_value = self.subsurface
-    node_shader.inputs["Subsurface Color"].default_value = (*self.subsurface_color, 1.0)
+    node_shader.inputs["Subsurface Color"].default_value = (*srgb2lin(self.subsurface_color), 1.0)
     node_shader.inputs["Transmission"].default_value = self.transmission
     node_shader.inputs["Transmission Roughness"].default_value = self.transmission_roughness
     node_shader.inputs["IOR"].default_value = self.ior
