@@ -31,6 +31,10 @@ PLASTIC_TRANSPARENT_CLEAR.transmission_roughness = 0.02
 (METAL_BRIGHT_MATTE  := METAL_BRIGHT.copy()).roughness = 0.6
 (METAL_BRIGHT_GLOSSY := METAL_BRIGHT.copy()).roughness = 0.05
 
+(METAL_DARK := _METAL_BASE.copy()).diffuse = ANTHRACITE_GREY
+(METAL_DARK_MATTE  := METAL_DARK.copy()).roughness = 0.6
+(METAL_DARK_GLOSSY := METAL_DARK.copy()).roughness = 0.05
+
 (METAL_BRASS := _METAL_BASE.copy()).diffuse = hex2rgb("b1a342")
 (METAL_BRASS_MATTE  := METAL_BRASS.copy()).roughness = 0.6
 (METAL_BRASS_GLOSSY := METAL_BRASS.copy()).roughness = 0.05
@@ -66,6 +70,10 @@ MATERIALS = {
     "metal-bright-matte":              METAL_BRIGHT_MATTE,
     "metal-bright":                    METAL_BRIGHT,
     "metal-bright-glossy":             METAL_BRIGHT_GLOSSY,
+    
+    "metal-dark-matte":                METAL_DARK_MATTE,
+    "metal-dark":                      METAL_DARK,
+    "metal-dark-glossy":               METAL_DARK_GLOSSY,
 
     "metal-brass-matte":               METAL_BRASS_MATTE,
     "metal-brass":                     METAL_BRASS,
