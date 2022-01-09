@@ -1,4 +1,4 @@
-from .core import Material
+from .core import Material, srgb2lin
 
 import bpy
 
@@ -6,7 +6,7 @@ def setup_node_tree(self: Material, node_tree: bpy.types.NodeTree):
     node_tree.nodes.clear()
 
     node_shader = node_tree.nodes.new("ShaderNodeBsdfPrincipled")
-    node_shader.inputs["Base Color"].default_value = (*self.diffuse, 1.0)
+    node_shader.inputs["Base Color"].default_value = (*srgb2lin(self.diffuse), 1.0)
     node_shader.inputs["Alpha"].default_value = self.alpha
     node_shader.inputs["Metallic"].default_value = self.metallic
     node_shader.inputs["Roughness"].default_value = self.roughness
