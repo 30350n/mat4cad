@@ -22,6 +22,10 @@ _PCB_BASE           = Material(roughness=0.4, subsurface=0.7)
 (PLASTIC_MOSS_GREEN_MATTE  := PLASTIC_MOSS_GREEN.copy()).roughness = 0.8
 (PLASTIC_MOSS_GREEN_GLOSSY := PLASTIC_MOSS_GREEN.copy()).roughness = 0.2
 
+(PLASTIC_SIGNAL_GREEN := _PLASTIC_BASE.copy()).diffuse = SIGNAL_GREEN
+(PLASTIC_SIGNAL_GREEN_MATTE  := PLASTIC_SIGNAL_GREEN.copy()).roughness = 0.8
+(PLASTIC_SIGNAL_GREEN_GLOSSY := PLASTIC_SIGNAL_GREEN.copy()).roughness = 0.2
+
 PLASTIC_TRANSPARENT_DIFFUSED = Material(
     diffuse=MOUSE_GREY, ior=1.46, transmission=0.5, transmission_roughness=0.2, alpha=0.5)
 PLASTIC_TRANSPARENT_CLEAR = PLASTIC_TRANSPARENT_DIFFUSED.copy()
@@ -31,7 +35,7 @@ PLASTIC_TRANSPARENT_CLEAR.transmission_roughness = 0.02
 (METAL_BRIGHT_MATTE  := METAL_BRIGHT.copy()).roughness = 0.6
 (METAL_BRIGHT_GLOSSY := METAL_BRIGHT.copy()).roughness = 0.05
 
-(METAL_DARK := _METAL_BASE.copy()).diffuse = ANTHRACITE_GREY
+(METAL_DARK := _METAL_BASE.copy()).diffuse = MOUSE_GREY
 (METAL_DARK_MATTE  := METAL_DARK.copy()).roughness = 0.6
 (METAL_DARK_GLOSSY := METAL_DARK.copy()).roughness = 0.05
 
@@ -63,6 +67,10 @@ MATERIALS = {
     "plastic-moss_green-matte":        PLASTIC_MOSS_GREEN_MATTE,
     "plastic-moss_green":              PLASTIC_MOSS_GREEN,
     "plastic-moss_green-glossy":       PLASTIC_MOSS_GREEN_GLOSSY,
+    
+    "plastic-signal_green-matte":      PLASTIC_SIGNAL_GREEN_MATTE,
+    "plastic-signal_green":            PLASTIC_SIGNAL_GREEN,
+    "plastic-signal_green-glossy":     PLASTIC_SIGNAL_GREEN_GLOSSY,
     
     "plastic-transparent-diffused":    PLASTIC_TRANSPARENT_DIFFUSED,
     "plastic-transparent-clear":       PLASTIC_TRANSPARENT_CLEAR,
