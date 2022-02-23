@@ -24,6 +24,36 @@ class Material:
     def shininess(self):
         return 1.0 - self.roughness
 
+    def from_name(name: str):
+        from .materials import BASE_MATERIALS, BASE_MATERIAL_COLORS, BASE_MATERIAL_VARIANTS
+
+        if name.count("-") != 2:
+            return Material()
+
+        base_str, color_str, variant_str = name.split("-")
+
+        if not (base := BASE_MATERIALS.get(base_str)):
+            return Material()
+
+        colors = BASE_MATERIAL_COLORS[base_str]
+
+        if not (color := colors.get(color_str)):
+            return Material()
+
+        material = base.copy()
+
+        if type(color) == Material:
+            return color
+        else:
+            material.diffuse = color
+
+        variants = BASE_MATERIAL_VARIANTS[base_str]
+        if values := variants.get(variant_str):
+            for attr, value in values.items():
+                setattr(material, attr, value)
+
+        return material
+
     def copy(self):
         return copy(self)
 
