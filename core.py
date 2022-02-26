@@ -28,17 +28,17 @@ class Material:
         from .materials import BASE_MATERIALS, BASE_MATERIAL_COLORS, BASE_MATERIAL_VARIANTS
 
         if name.count("-") != 2:
-            return Material()
+            return None
 
         base_str, color_str, variant_str = name.split("-")
 
         if not (base := BASE_MATERIALS.get(base_str)):
-            return Material()
+            return None
 
         colors = BASE_MATERIAL_COLORS[base_str]
 
         if not (color := colors.get(color_str)):
-            return Material()
+            return None
 
         material = base.copy()
 
