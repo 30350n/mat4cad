@@ -243,17 +243,18 @@ PCB_COLORS = {
 }
 
 METAL_COLORS = {
-    "aluminium":       hex2rgb("f5f6f6"),
-    "titanium":        hex2rgb("c1bab1"),
-    "iron":            hex2rgb("c4c7c7"),
-    "cobalt":          hex2rgb("d3d2cf"),
-    "nickel":          hex2rgb("d3cbbe"),
-    "copper":          hex2rgb("fad0c0"),
-    "brass":           hex2rgb("b1a342"),
-    "tin":             hex2rgb("f2f0e5"),
-    "silver":          hex2rgb("fcfaf5"),
-    "platinum":        hex2rgb("d5d0c8"),
-    "gold":            hex2rgb("ffe29b"),
+    "steel":           hex2rgb("939595"),
+    "iron":            hex2rgb("b9bcbc"),
+    "silver":          hex2rgb("e7e5e1"),
+    "gold":            hex2rgb("e7cd8c"),
+    "brass":           hex2rgb("e1d388"),
+    "copper":          hex2rgb("e1bbac"),
+    "titanium":        hex2rgb("aaa39b"),
+    "aluminium":       hex2rgb("e6e7e7"),
+    "cobalt":          hex2rgb("bcbbb8"),
+    "nickel":          hex2rgb("bcb4a9"),
+    "tin":             hex2rgb("cbcac0"),
+    "platinum":        hex2rgb("bcb7b0"),
 }
 
 ALL_COLORS = {**RAL_COLORS, **PCB_COLORS, **METAL_COLORS}
