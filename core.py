@@ -35,9 +35,8 @@ class Material:
         if not (base := BASE_MATERIALS.get(base_str)):
             return None
 
-        colors = BASE_MATERIAL_COLORS[base_str]
-
-        if not (color := colors.get(color_str)):
+        color_options = BASE_MATERIAL_COLORS[base_str]
+        if not (color := color_options.get(color_str)):
             return None
 
         material = base.copy()
@@ -50,6 +49,9 @@ class Material:
         variants = BASE_MATERIAL_VARIANTS[base_str]
         if values := variants.get(variant_str):
             for attr, value in values.items():
+                if type(value) == dict:
+                    if not (value := value.get(color_str)):
+                        continue
                 setattr(material, attr, value)
 
         return material

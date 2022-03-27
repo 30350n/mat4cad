@@ -242,6 +242,10 @@ PCB_COLORS = {
     "pcb_brown":       hex2rgb("452700"),
 }
 
+PCB_SUBSURFACE_COLORS = {
+    "pcb_brown":       hex2rgb("1b120d"),
+}
+
 METAL_COLORS = {
     "steel":           hex2rgb("939595"),
     "iron":            hex2rgb("b9bcbc"),

@@ -47,6 +47,10 @@ METAL_PAINTED_VARIANTS = {
     "matte":      {"roughness": 0.6},
 }
 
+PCB_VARIANTS = {
+    "default": {"subsurface_color": PCB_SUBSURFACE_COLORS},
+}
+
 NO_VARIANTS = {
     "default": {},
 }
@@ -56,7 +60,7 @@ BASE_MATERIAL_VARIANTS = {
     "plastic_transparent": PLASTIC_TRANSPARENT_VARIANTS,
     "metal":               METAL_VARIANTS,
     "metal_painted":       METAL_PAINTED_VARIANTS,
-    "pcb":                 NO_VARIANTS,
+    "pcb":                 PCB_VARIANTS,
     "special":             NO_VARIANTS,
 }
 
