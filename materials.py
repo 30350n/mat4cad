@@ -7,6 +7,7 @@ BASE_MATERIALS = {
     "metal":               Material(roughness=0.25, metallic=1.0),
     "metal_painted":       Material(roughness=0.4, metallic=1.0, clearcoat=1.0, clearcoat_roughness=0.4),
     "pcb":                 Material(roughness=0.4, subsurface=0.7),
+    "rubber":              Material(roughness=0.4),
     "special":             Material(),
 }
 
@@ -21,6 +22,7 @@ BASE_MATERIAL_COLORS = {
     "metal":               METAL_COLORS,
     "metal_painted":       RAL_COLORS,
     "pcb":                 PCB_COLORS,
+    "rubber":              RAL_COLORS,
     "special":             SPECIAL_MATERIALS,
 }
 
@@ -47,6 +49,12 @@ METAL_PAINTED_VARIANTS = {
     "matte":      {"roughness": 0.6},
 }
 
+RUBBER_VARIANTS = {
+    "glossy": {"roughness": 0.15},
+    "semi_matte": {"roughness": 0.4},
+    "matte": {"roughness": 0.8},
+}
+
 PCB_VARIANTS = {
     "default": {"subsurface_color": PCB_SUBSURFACE_COLORS},
 }
@@ -61,6 +69,7 @@ BASE_MATERIAL_VARIANTS = {
     "metal":               METAL_VARIANTS,
     "metal_painted":       METAL_PAINTED_VARIANTS,
     "pcb":                 PCB_VARIANTS,
+    "rubber":              RUBBER_VARIANTS,
     "special":             NO_VARIANTS,
 }
 
