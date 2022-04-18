@@ -13,7 +13,7 @@ class Material:
     transmission_roughness: float = 0.0
     ior: float = 1.45
     emission: (float, float, float) = (0.0, 0.0, 0.0)
-    clearcoat: float = 1.0
+    clearcoat: float = 0.0
     clearcoat_roughness: float = 0.03
 
     @property
