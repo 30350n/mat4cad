@@ -6,7 +6,7 @@ BASE_MATERIALS = {
     "plastic_transparent": Material(ior=1.46, transmission=0.5, transmission_roughness=0.05, alpha=0.5),
     "metal":               Material(roughness=0.25, metallic=1.0),
     "metal_painted":       Material(roughness=0.4, metallic=1.0, clearcoat=1.0, clearcoat_roughness=0.4),
-    "pcb":                 Material(roughness=0.4, subsurface=0.7),
+    "pcb":                 Material(roughness=0.4, subsurface_mm=1.0),
     "rubber":              Material(roughness=0.4),
     "special":             Material(),
 }
@@ -56,7 +56,7 @@ RUBBER_VARIANTS = {
 }
 
 PCB_VARIANTS = {
-    "default": {"subsurface_color": PCB_SUBSURFACE_COLORS},
+    "default": {},
 }
 
 NO_VARIANTS = {
@@ -71,6 +71,13 @@ BASE_MATERIAL_VARIANTS = {
     "pcb":                 PCB_VARIANTS,
     "rubber":              RUBBER_VARIANTS,
     "special":             NO_VARIANTS,
+}
+
+SUBSURFACE_RADIUSES = {
+    "pcb" : {
+        "pcb_brown":  (1.0, 0.2, 0.1),
+        "pcb_yellow": (0.2, 0.8, 0.6),
+    }
 }
 
 for name, material in BASE_MATERIALS.items():

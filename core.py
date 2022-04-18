@@ -7,14 +7,15 @@ class Material:
     alpha: float = 1.0
     metallic: float = 0.0
     roughness: float = 0.8
-    subsurface: float = 0.0
-    subsurface_color: (float, float, float) = (0.8, 0.8, 0.8)
+    subsurface_mm: float = 0.0
+    subsurface_radius: (float, float, float) = None
     transmission: float = 0.0
     transmission_roughness: float = 0.0
     ior: float = 1.45
     emission: (float, float, float) = (0.0, 0.0, 0.0)
     clearcoat: float = 0.0
     clearcoat_roughness: float = 0.03
+    bevel_mm: float = 0.05
 
     @property
     def transparency(self):
@@ -25,7 +26,9 @@ class Material:
         return 1.0 - self.roughness
 
     def from_name(name: str):
-        from .materials import BASE_MATERIALS, BASE_MATERIAL_COLORS, BASE_MATERIAL_VARIANTS
+        from .materials import (
+            BASE_MATERIALS, BASE_MATERIAL_COLORS, BASE_MATERIAL_VARIANTS, SUBSURFACE_RADIUSES
+        )
 
         if name.count("-") != 2:
             return None
@@ -53,6 +56,10 @@ class Material:
                     if not (value := value.get(color_str)):
                         continue
                 setattr(material, attr, value)
+
+        if ssrs := SUBSURFACE_RADIUSES.get(base_str):
+            if ssr := ssrs.get(color_str):
+                material.subsurface_radius = ssr
 
         return material
 

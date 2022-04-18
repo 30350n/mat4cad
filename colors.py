@@ -240,10 +240,7 @@ RAL_COLORS = {
 
 PCB_COLORS = {
     "pcb_brown":       hex2rgb("452700"),
-}
-
-PCB_SUBSURFACE_COLORS = {
-    "pcb_brown":       hex2rgb("1b120d"),
+    "pcb_yellow":      hex2rgb("a4a858"),
 }
 
 METAL_COLORS = {
