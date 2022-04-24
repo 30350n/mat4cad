@@ -1,0 +1,3 @@
+[submodule "blender/custom_node_utils"]
+	path = blender/custom_node_utils
+	url = https://github.com/30350n/custom_node_utils.git
