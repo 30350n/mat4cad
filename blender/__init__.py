@@ -33,8 +33,6 @@ def setup_node_tree(self: Material, node_tree: bpy.types.NodeTree, force_princip
         node_shader.mat_color = self.color.upper()
         node_shader.mat_variant = self.variant.upper()
     else:
-        print(self.base, force_principled)
-
         node_shader = node_tree.nodes.new("ShaderNodeBsdfPrincipled")
         self.setup_principled_bsdf(node_shader)
 
