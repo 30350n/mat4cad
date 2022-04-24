@@ -17,6 +17,10 @@ class Material:
     clearcoat_roughness: float = 0.03
     bevel_mm: float = 0.05
 
+    base: str = None
+    color: str = None
+    variant: str = None
+
     @property
     def transparency(self):
         return 1.0 - self.alpha
@@ -42,11 +46,10 @@ class Material:
         if not (color := color_options.get(color_str)):
             return None
 
-        material = base.copy()
-
         if type(color) == Material:
-            return color
+            material = color.copy()
         else:
+            material = base.copy()
             material.diffuse = color
 
         variants = BASE_MATERIAL_VARIANTS[base_str]
@@ -61,6 +64,9 @@ class Material:
             if ssr := ssrs.get(color_str):
                 material.subsurface_radius = ssr
 
+        material.base = base_str
+        material.color = color_str
+        material.variant = variant_str
         return material
 
     def copy(self):
