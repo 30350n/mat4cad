@@ -76,7 +76,7 @@ BASE_MATERIAL_VARIANTS = {
 SUBSURFACE_RADIUSES = {
     "pcb" : {
         "pcb_brown":  (1.0, 0.2, 0.1),
-        "pcb_yellow": (0.2, 0.8, 0.6),
+        "pcb_yellow": (0.4, 0.4, 0.1),
     }
 }
 
