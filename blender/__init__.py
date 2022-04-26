@@ -125,12 +125,6 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, bpy.types.ShaderNodeCustomGr
         material_name = "-".join((self.mat_base, self.mat_color, self.mat_variant)).lower()
         return Material.from_name(material_name)
 
-    def draw_buttons(self, context, layout):
-        layout.prop(self, "mat_base", text="")
-        layout.prop(self, "mat_color", text="")
-        layout.prop(self, "mat_variant", text="")
-        layout.prop(self, "use_bevel")
-
 shader_node_category = ShaderNodeCategory("SH_NEW_MAT4CAD", "Mat4cad", items=(
     NodeItem("ShaderNodeBsdfMat4cad"),
 ))
