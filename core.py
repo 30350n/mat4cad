@@ -1,18 +1,19 @@
 from dataclasses import dataclass
 from copy import copy
+from typing import Tuple
 
 @dataclass
 class Material:
-    diffuse: tuple[float, float, float] = (0.8, 0.8, 0.8)
+    diffuse: Tuple[float, float, float] = (0.8, 0.8, 0.8)
     alpha: float = 1.0
     metallic: float = 0.0
     roughness: float = 0.8
     subsurface_mm: float = 0.0
-    subsurface_radius: tuple[float, float, float] = None
+    subsurface_radius: Tuple[float, float, float] = None
     transmission: float = 0.0
     transmission_roughness: float = 0.0
     ior: float = 1.45
-    emission: tuple[float, float, float] = (0.0, 0.0, 0.0)
+    emission: Tuple[float, float, float] = (0.0, 0.0, 0.0)
     clearcoat: float = 0.0
     clearcoat_roughness: float = 0.03
     bevel_mm: float = 0.05
