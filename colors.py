@@ -250,6 +250,7 @@ METAL_COLORS = {
     "gold":            hex2rgb("e7cd8c"),
     "brass":           hex2rgb("e1d388"),
     "copper":          hex2rgb("e1bbac"),
+    "bronze":          hex2rgb("e1b682"),
     "titanium":        hex2rgb("aaa39b"),
     "aluminium":       hex2rgb("e6e7e7"),
     "cobalt":          hex2rgb("bcbbb8"),
