@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from copy import copy
 from typing import Tuple
@@ -18,9 +19,13 @@ class Material:
     clearcoat_roughness: float = 0.03
     bevel_mm: float = 0.05
 
+    name: str = None
     base: str = None
     color: str = None
     variant: str = None
+
+    has_custom_color: bool = False
+    custom_color: str = None
 
     @property
     def transparency(self):
@@ -30,6 +35,7 @@ class Material:
     def shininess(self):
         return 1.0 - self.roughness
 
+    @staticmethod
     def from_name(name: str):
         from .materials import (
             BASE_MATERIALS, BASE_MATERIAL_COLORS, BASE_MATERIAL_VARIANTS, SUBSURFACE_RADIUSES
@@ -43,15 +49,20 @@ class Material:
         if not (base := BASE_MATERIALS.get(base_str)):
             return None
 
-        color_options = BASE_MATERIAL_COLORS[base_str]
-        if not (color := color_options.get(color_str)):
-            return None
+        material = base.copy()
 
-        if type(color) == Material:
-            material = color.copy()
+        if custom_color_regex.match(color_str):
+            material.has_custom_color = True
+            material.custom_color = color_str.split("_")[1]
+            material.diffuse = hex2rgb(material.custom_color)
         else:
-            material = base.copy()
-            material.diffuse = color
+            color_options = BASE_MATERIAL_COLORS[base_str]
+            if not (color := color_options.get(color_str)):
+                return None
+            if type(color) == Material:
+                material = color.copy()
+            else:
+                material.diffuse = color
 
         variants = BASE_MATERIAL_VARIANTS[base_str]
         if values := variants.get(variant_str):
@@ -65,13 +76,17 @@ class Material:
             if ssr := ssrs.get(color_str):
                 material.subsurface_radius = ssr
 
+        material.name = name
         material.base = base_str
         material.color = color_str
         material.variant = variant_str
+
         return material
 
     def copy(self):
         return copy(self)
+
+custom_color_regex = re.compile(r"^custom_[0-9A-Fa-f]{6}$")
 
 def hex2rgb(hex_string):
     return (
@@ -79,6 +94,13 @@ def hex2rgb(hex_string):
         int(hex_string[2:4], 16) / 255,
         int(hex_string[4:6], 16) / 255
     )
+
+def rgb2hex(rgb):
+    return "".join((
+        hex(int(rgb[0] * 255))[2:],
+        hex(int(rgb[1] * 255))[2:],
+        hex(int(rgb[2] * 255))[2:],
+    ))
 
 def srgb2lin(color):
     result = []

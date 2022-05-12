@@ -1,3 +1,3 @@
-from .core import Material
+from .core import *
 from .materials import *
 from .colors import *
