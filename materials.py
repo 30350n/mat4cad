@@ -7,7 +7,7 @@ BASE_MATERIALS = {
     "metal":               Material(roughness=0.25, metallic=1.0),
     "metal_painted":       Material(roughness=0.4, metallic=1.0, clearcoat=1.0, clearcoat_roughness=0.4),
     "pcb":                 Material(roughness=0.4, subsurface_mm=1.0),
-    "rubber":              Material(roughness=0.4),
+    "rubber":              Material(roughness=0.4, bevel_mm=0.2),
     "special":             Material(),
 }
 
@@ -21,8 +21,8 @@ BASE_MATERIAL_COLORS = {
     "plastic_transparent": RAL_COLORS,
     "metal":               METAL_COLORS,
     "metal_painted":       RAL_COLORS,
-    "pcb":                 PCB_COLORS,
     "rubber":              RAL_COLORS,
+    "pcb":                 PCB_COLORS,
     "special":             SPECIAL_MATERIALS,
 }
 

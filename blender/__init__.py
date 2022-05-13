@@ -86,6 +86,7 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, bpy.types.ShaderNodeCustomGr
 
         material = self.get_material()
         material.setup_principled_bsdf(self.node_tree.nodes["shader"])
+        self.update_bevel(context)
 
     mat_base: EnumProperty(name="Base Material", update=update_props,
         items=mat_base_items())
