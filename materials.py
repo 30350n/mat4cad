@@ -6,7 +6,7 @@ BASE_MATERIALS = {
     "plastic_transparent": Material(ior=1.46, transmission=0.5, transmission_roughness=0.05, alpha=0.5),
     "metal":               Material(roughness=0.25, metallic=1.0),
     "metal_painted":       Material(roughness=0.4, metallic=1.0, clearcoat=1.0, clearcoat_roughness=0.4),
-    "pcb":                 Material(roughness=0.4, subsurface_mm=1.0),
+    "pcb":                 Material(roughness=0.4, subsurface_mm=1.0, transmission=0.25, transmission_roughness=0.4, alpha=0.95),
     "rubber":              Material(roughness=0.4, bevel_mm=0.2),
     "special":             Material(),
 }
