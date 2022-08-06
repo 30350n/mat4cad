@@ -92,14 +92,14 @@ def hex2rgb(hex_string):
     return (
         int(hex_string[0:2], 16) / 255,
         int(hex_string[2:4], 16) / 255,
-        int(hex_string[4:6], 16) / 255
+        int(hex_string[4:6], 16) / 255,
     )
 
 def rgb2hex(rgb):
     return "".join((
-        hex(int(rgb[0] * 255))[2:],
-        hex(int(rgb[1] * 255))[2:],
-        hex(int(rgb[2] * 255))[2:],
+        f"{int(rgb[0] * 255):02x}",
+        f"{int(rgb[1] * 255):02x}",
+        f"{int(rgb[2] * 255):02x}",
     ))
 
 def srgb2lin(color):
