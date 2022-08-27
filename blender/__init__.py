@@ -1,9 +1,10 @@
 from ..materials import BASE_MATERIAL_COLORS, BASE_MATERIALS, BASE_MATERIAL_VARIANTS
-from ..core import Material, srgb2lin
+from ..core import Material, hex2rgb, srgb2lin
 from .custom_node_utils import *
 
 import bpy
 from bpy.props import EnumProperty, BoolProperty
+from mathutils import Vector
 
 from nodeitems_utils import NodeItem
 from nodeitems_builtins import ShaderNodeCategory
@@ -52,7 +53,7 @@ setattr(Material, setup_node_tree.__name__, setup_node_tree)
 
 class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, bpy.types.ShaderNodeCustomGroup):
     bl_label = "Mat4cad BSDF"
-    bl_width_default = 140
+    bl_width_default = 180
 
     @staticmethod
     def mat_base_items():
@@ -86,6 +87,11 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, bpy.types.ShaderNodeCustomGr
 
         material = self.get_material()
         material.setup_principled_bsdf(self.node_tree.nodes["shader"])
+
+        color = (*srgb2lin(material.diffuse), 1.0)
+        self.node_tree.nodes["color"].outputs[0].default_value = color
+        self.node_tree.nodes["roughness"].outputs[0].default_value = material.roughness
+
         self.update_bevel(context)
 
     mat_base: EnumProperty(name="Base Material", update=update_props,
@@ -106,12 +112,62 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, bpy.types.ShaderNodeCustomGr
 
     def init(self, context):
         inputs = {
+            "Texture Strength": ("NodeSocketFloat", {"default_value": 0.5}),
             "Normal": ("NodeSocketVector", {"hide_value": True}),
         }
 
         nodes = {
-            "bevel": ("ShaderNodeBevel", {}, {"Normal": ("inputs", "Normal")}),
-            "shader": ("ShaderNodeBsdfPrincipled", {}, {"Normal": ("bevel", 0)}),
+            "color": ("ShaderNodeRGB", {}, {}),
+            "roughness": ("ShaderNodeValue", {}, {}),
+
+            "tex_strength_rough_fac": ("ShaderNodeMath", {"operation": "MULTIPLY"},
+                {0: ("roughness", 0), 1: 5.0}),
+            "tex_strength": ("ShaderNodeMath", {"operation": "MULTIPLY"},
+                {0: ("inputs", "Texture Strength"), 1: ("tex_strength_rough_fac", 0)}),
+
+            "tex_coord": ("ShaderNodeTexCoord", {}, {}),
+            "edges_bevel": ("ShaderNodeBevel", {"samples": 2},
+                {"Radius": 0.0005, "Normal": ("tex_coord", "Normal")}),
+            "edges": ("ShaderNodeVectorMath", {"operation": "DISTANCE"},
+                {0: ("edges_bevel", 0), 1: ("tex_coord", "Normal")}),
+            "edges_scaled": ("ShaderNodeMath", {"operation": "MULTIPLY"},
+                {0: ("edges", "Value"), 1: ("tex_strength", 0)}),
+
+            "color_worn_fac": ("ShaderNodeMath", {"operation": "MULTIPLY"},
+                {0: ("edges_scaled", 0), 1: 3.0}),
+            "mix_color_worn": ("ShaderNodeMixRGB", {"blend_type": "DODGE"}, {
+                "Color1": ("color", 0), "Color2": Vector((*srgb2lin(hex2rgb("A0A060")), 1)),
+                "Fac": ("color_worn_fac", 0)}),
+
+            "object_info": ("ShaderNodeObjectInfo", {}, {}),
+            "noise_scale": ("ShaderNodeMath", {"operation": "MULTIPLY_ADD"},
+                {0: ("object_info", "Random"), 1: 50, 2: 200}),
+            "noise": ("ShaderNodeTexNoise", {}, {
+                "Vector": ("tex_coord", "Object"), "Scale": ("noise_scale", 0),
+                "Detail": 8.0, "Roughness": 0.55, "Distortion": 0.1}),
+            "noise_mapped": ("ShaderNodeMapRange", {},
+                {"Value": ("noise", "Fac"), "From Min": 0.4, "From Max": 0.6}),
+
+            "bump_strength": ("ShaderNodeMath", {"operation": "MULTIPLY"},
+                {0: ("tex_strength", 0), 1: 0.02}),
+            "bump": ("ShaderNodeBump", {}, {"Normal": ("inputs", "Normal"),
+                "Strength": ("bump_strength", 0), "Height": ("noise_mapped", 0)}),
+            "bevel": ("ShaderNodeBevel", {}, {"Normal": ("bump", "Normal")}),
+
+            "roughness_range": ("ShaderNodeMath", {"operation": "MULTIPLY"},
+                {0: ("tex_strength", 0), 1: 0.1}),
+            "roughness_min": ("ShaderNodeMath", {"operation": "SUBTRACT"},
+                {0: ("roughness", 0), 1: ("roughness_range", 0)}),
+            "roughness_max": ("ShaderNodeMath", {"operation": "ADD"},
+                {0: ("roughness", 0), 1: ("roughness_range", 0)}),
+            "roughness_mapped": ("ShaderNodeMapRange", {}, {"Value": ("noise_mapped", 0),
+                "To Min": ("roughness_min", 0), "To Max": ("roughness_max", 0)}),
+            "roughness_worn": ("ShaderNodeMath", {"operation": "ADD"},
+                {0: ("roughness_mapped", 0), 1: ("edges_scaled", 0)}),
+
+            "shader": ("ShaderNodeBsdfPrincipled", {}, {
+                "Base Color": ("mix_color_worn", 0), "Roughness": ("roughness_worn", 0),
+                "Normal": ("bevel", 0)}),
         }
 
         outputs = {

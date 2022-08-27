@@ -13,7 +13,7 @@ BASE_MATERIALS = {
 
 SPECIAL_MATERIALS = {
     "pins_silver": Material(diffuse=hex2rgb("eaeae5"), metallic=1.0, roughness=0.2),
-    "pins_gold": Material(diffuse=hex2rgb("efdfbb"), metallic=1.0, roughness=0.1),
+    "pins_gold":   Material(diffuse=hex2rgb("efdfbb"), metallic=1.0, roughness=0.1),
 }
 
 BASE_MATERIAL_COLORS = {
