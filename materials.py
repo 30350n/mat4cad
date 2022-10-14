@@ -38,7 +38,7 @@ PLASTIC_TRANSPARENT_VARIANTS = {
 }
 
 METAL_VARIANTS = {
-    "glossy":     {"roughness": 0.05},
+    "glossy":     {"roughness": 0.1},
     "semi_matte": {"roughness": 0.25},
     "matte":      {"roughness": 0.4},
 }
