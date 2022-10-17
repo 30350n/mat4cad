@@ -126,7 +126,7 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, ShaderNodeCustomGroup):
             "roughness": ("ShaderNodeValue", {}, {}),
 
             "tex_strength_metal_fac": ("ShaderNodeMath", {"operation": "MULTIPLY_ADD"},
-                {0: ("metallic", 0), 1: -1.0, 2: 2.5}),
+                {0: ("metallic", 0), 1: -3.0, 2: 4.5}),
             "tex_strength_rough_fac": ("ShaderNodeMath", {"operation": "MULTIPLY_ADD"},
                 {0: ("roughness", 0), 1: ("tex_strength_metal_fac", 0), 2: 0.5}),
             "tex_strength": ("ShaderNodeMath", {"operation": "MULTIPLY"},
@@ -247,7 +247,7 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
                 {0: ("edges", "Value"), 1: ("inputs", "Strength")}),
 
             "noise_tex_coord_scale": ("ShaderNodeMath", {"operation": "MULTIPLY"},
-                {0: ("inputs", "Scale"), 1: 100}),
+                {0: ("inputs", "Scale"), 1: 150}),
             "noise_tex_coord": ("ShaderNodeTexVoronoi", {},
                 {"Vector": ("inputs", "Vector"), "Scale": ("noise_tex_coord_scale", 0)}),
             "scratches_tex_coord": ("ShaderNodeVectorMath", {"operation": "SUBTRACT"},
@@ -256,7 +256,7 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
                 {0: ("scratches_tex_coord", 0), 1: ("noise_tex_coord", "Color")}),
 
             "noise_scale": ("ShaderNodeMath", {"operation": "MULTIPLY"},
-                {0: ("inputs", "Scale"), 1: 65}),
+                {0: ("inputs", "Scale"), 1: 90}),
             "noise1": ("ShaderNodeTexNoise", {}, {
                 "Vector": ("tex_coord_randomized", "Vector"), "Scale": ("noise_scale", 0),
                 "Detail": 8.0, "Roughness": 0.4, "Distortion": 2.9}),
@@ -278,17 +278,17 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
                 "From Max": 0.0001, "To Min": 1.0, "To Max": 0.0}),
 
             "noise_filter_scale": ("ShaderNodeMath", {"operation": "MULTIPLY"},
-                {0: ("inputs", "Scale"), 1: 110}),
+                {0: ("inputs", "Scale"), 1: 170}),
             "noise_filter": ("ShaderNodeTexNoise", {}, {
                 "Vector": ("inputs", "Vector"), "Scale": ("noise_filter_scale", 0),
                 "Detail": 8.0, "Roughness": 0.55, "Distortion": 0.1}),
             "noise_filter_edges": ("ShaderNodeMath", {"operation": "MULTIPLY_ADD"},
                 {0: ("edges_scaled", 0), 1: 1.5, 2: ("noise_filter", "Fac")}),
 
-            "amount_roughness": ("ShaderNodeMath", {"operation": "MULTIPLY_ADD"},
-                {0: ("inputs", "Roughness"), 1: 0.5, 2: 0.25}),
+            "roughness_fac": ("ShaderNodeMath", {"operation": "MULTIPLY_ADD"},
+                {0: ("inputs", "Roughness"), 1: 0.6, 2: 0.1}),
             "amount": ("ShaderNodeMath", {"operation": "MULTIPLY_ADD"},
-                {0: ("inputs", "Amount"), 1: ("amount_roughness", 0), 2: -0.6}),
+                {0: ("inputs", "Amount"), 1: ("roughness_fac", 0), 2: -0.7}),
 
             "scratches_filter": ("ShaderNodeMath", {"operation": "ADD", "use_clamp": True},
                 {0: ("noise_filter_edges", 0), 1: ("amount", 0)}),
@@ -307,8 +307,8 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
             "roughness_worn": ("ShaderNodeMath", {"operation": "ADD"},
                 {0: ("inputs", "Roughness"), 1: ("edges_scaled", 0)}),
 
-            "bump_strength": ("ShaderNodeMath", {"operation": "MULTIPLY_ADD"},
-                {0: ("inputs", "Roughness"), 1: 0.5, 2: 0.1}),
+            "bump_strength": ("ShaderNodeMath", {"operation": "MULTIPLY"},
+                {0: ("inputs", "Strength"), 1: ("roughness_fac", 0)}),
             "bump": ("ShaderNodeBump", {"invert": True}, {"Normal": ("inputs", "Normal"),
                 "Strength": ("bump_strength", 0), "Height": ("scratches_filtered", 0)}),
         }
