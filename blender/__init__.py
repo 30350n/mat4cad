@@ -6,6 +6,7 @@ import bpy
 from bpy.props import EnumProperty, BoolProperty
 from mathutils import Vector
 
+from bpy.types import ShaderNodeCustomGroup
 from nodeitems_utils import NodeItem
 from nodeitems_builtins import ShaderNodeCategory
 
@@ -51,7 +52,7 @@ def setup_node_tree(self: Material, node_tree: bpy.types.NodeTree, force_princip
 setattr(Material, setup_principled_bsdf.__name__, setup_principled_bsdf)
 setattr(Material, setup_node_tree.__name__, setup_node_tree)
 
-class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, bpy.types.ShaderNodeCustomGroup):
+class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, ShaderNodeCustomGroup):
     bl_label = "Mat4cad BSDF"
     bl_width_default = 180
 
@@ -173,13 +174,11 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, bpy.types.ShaderNodeCustomGr
         material_name = "-".join((self.mat_base, self.mat_color, self.mat_variant)).lower()
         return Material.from_name(material_name)
 
-class ShaderNodeMat4cadNoise(CustomNodetreeNodeBase, bpy.types.ShaderNodeCustomGroup):
+class ShaderNodeMat4cadNoise(SharedCustomNodetreeNodeBase, ShaderNodeCustomGroup):
     bl_label = "Mat4cad Noise"
     bl_width_default = 140
 
     def init(self, context):
-        self.shared_node_tree = True
-
         inputs = {
             "Roughness": ("NodeSocketFloat", {"hide_value": True, "default_value": 0.5}),
             "Normal": ("NodeSocketVector", {"hide_value": True}),
@@ -219,15 +218,13 @@ class ShaderNodeMat4cadNoise(CustomNodetreeNodeBase, bpy.types.ShaderNodeCustomG
 
         self.init_node_tree(inputs, nodes, outputs)
 
-class ShaderNodeMat4cadScratches(CustomNodetreeNodeBase, bpy.types.ShaderNodeCustomGroup):
+class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomGroup):
     bl_label = "Mat4cad Scratches"
     bl_width_default = 140
 
     COLOR_WORN = srgb2lin(hex2rgb("A0A060"))
 
     def init(self, context):
-        self.shared_node_tree = True
-
         inputs = {
             "Color": ("NodeSocketColor", {"hide_value": True,
                 "default_value": (0.5, 0.5, 0.5, 1.0)}),
@@ -323,7 +320,6 @@ class ShaderNodeMat4cadScratches(CustomNodetreeNodeBase, bpy.types.ShaderNodeCus
         }
 
         self.init_node_tree(inputs, nodes, outputs)
-
 
 shader_node_category = ShaderNodeCategory("SH_NEW_MAT4CAD", "Mat4cad", items=(
     NodeItem("ShaderNodeBsdfMat4cad"),
