@@ -203,6 +203,7 @@ class ShaderNodeMat4cadNoise(SharedCustomNodetreeNodeBase, ShaderNodeCustomGroup
             "roughness_max": ("ShaderNodeMath", {"operation": "ADD"},
                 {0: ("inputs", "Roughness"), 1: ("roughness_range", 0)}),
             "roughness_mapped": ("ShaderNodeMapRange", {}, {"Value": ("noise_mapped", 0),
+                "From Min": 0.2, "From Max": 0.8,
                 "To Min": ("roughness_min", 0), "To Max": ("roughness_max", 0)}),
 
             "bump_strength": ("ShaderNodeMath", {"operation": "MULTIPLY"},
