@@ -3,10 +3,13 @@ from .colors import *
 
 BASE_MATERIALS = {
     "plastic":             Material(roughness=0.4),
-    "plastic_transparent": Material(ior=1.46, transmission=0.5, transmission_roughness=0.05, alpha=0.5),
+    "plastic_transparent": Material(ior=1.46, transmission=0.5, transmission_roughness=0.05,
+                                    alpha=0.5),
     "metal":               Material(roughness=0.25, metallic=1.0),
-    "metal_painted":       Material(roughness=0.4, metallic=1.0, clearcoat=1.0, clearcoat_roughness=0.4),
-    "pcb":                 Material(roughness=0.4, subsurface_mm=1.0, transmission=0.25, transmission_roughness=0.4, alpha=0.95),
+    "metal_painted":       Material(roughness=0.4, metallic=1.0, clearcoat=1.0,
+                                    clearcoat_roughness=0.4),
+    "pcb":                 Material(roughness=0.4, subsurface_mm=1.0, transmission=0.25,
+                                    transmission_roughness=0.4, alpha=0.95),
     "rubber":              Material(roughness=0.4, bevel_mm=0.2),
     "special":             Material(),
 }
@@ -74,7 +77,7 @@ BASE_MATERIAL_VARIANTS = {
 }
 
 SUBSURFACE_RADIUSES = {
-    "pcb" : {
+    "pcb": {
         "pcb_brown":  (1.0, 0.2, 0.1),
         "pcb_yellow": (0.4, 0.4, 0.1),
     }
