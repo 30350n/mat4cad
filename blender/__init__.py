@@ -32,8 +32,13 @@ def setup_node_tree(self: Material, node_tree: bpy.types.NodeTree, force_princip
     if self.base and not force_principled:
         node_shader = node_tree.nodes.new("ShaderNodeBsdfMat4cad")
         node_shader.mat_base = self.base.upper()
-        node_shader.mat_color = self.color.upper()
         node_shader.mat_variant = self.variant.upper()
+
+        if self.has_custom_color:
+            node_shader.mat_color = "CUSTOM"
+            node_shader.inputs["Color"].default_value = (*srgb2lin(self.diffuse), 1.0)
+        else:
+            node_shader.mat_color = self.color.upper()
     else:
         node_shader = node_tree.nodes.new("ShaderNodeBsdfPrincipled")
         self.setup_principled_bsdf(node_shader)
