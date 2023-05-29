@@ -254,7 +254,7 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
                 {0: ("inputs", "Scale"), 1: 90}),
             "noise1": ("ShaderNodeTexNoise", {}, {
                 "Vector": ("tex_coord_randomized", "Vector"), "Scale": ("noise_scale", 0),
-                "Detail": 8.0, "Roughness": 0.4, "Distortion": 2.9}),
+                "Detail": 4.0, "Roughness": 0.4, "Distortion": 2.9}),
             "scratches1_offset": ("ShaderNodeMath", {"operation": "SUBTRACT"},
                 {0: ("noise1", "Fac"), 1: 0.5}),
             "scratches1_abs": ("ShaderNodeMath", {"operation": "ABSOLUTE"},
@@ -266,8 +266,11 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
                 {0: ("scratches1_abs", 0), 1: ("noise2", "Distance")}),
             "scratches_separate": ("ShaderNodeTexVoronoi", {"feature": "DISTANCE_TO_EDGE"},
                 {"Vector": ("inputs", "Vector"), "Scale": ("noise_tex_coord_scale", 0)}),
+            "scratches_separate_fix": ("ShaderNodeMapRange", {}, {
+                "Value": ("scratches_separate", "Distance"),
+                "From Min": 0.05, "To Min": 0.001}),
             "scratches_separated": ("ShaderNodeMath", {"operation": "DIVIDE"},
-                {0: ("scratches_layered", 0), 1: ("scratches_separate", "Distance")}),
+                {0: ("scratches_layered", 0), 1: ("scratches_separate_fix", 0)}),
             "scratches_scaled": ("ShaderNodeMapRange", {}, {
                 "Value": ("scratches_separated", 0),
                 "From Max": 0.0001, "To Min": 1.0, "To Max": 0.0}),
@@ -276,7 +279,7 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
                 {0: ("inputs", "Scale"), 1: 170}),
             "noise_filter": ("ShaderNodeTexNoise", {}, {
                 "Vector": ("inputs", "Vector"), "Scale": ("noise_filter_scale", 0),
-                "Detail": 8.0, "Roughness": 0.55, "Distortion": 0.1}),
+                "Detail": 4.0, "Roughness": 0.55, "Distortion": 0.1}),
             "noise_filter_edges": ("ShaderNodeMath", {"operation": "MULTIPLY_ADD"},
                 {0: ("edges_scaled", 0), 1: 1.5, 2: ("noise_filter", "Fac")}),
 
@@ -291,21 +294,25 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
                 {0: ("scratches_scaled", 0), 1: ("scratches_filter", 0)}),
 
             "color_worn_fac": ("ShaderNodeMath", {"operation": "MULTIPLY"},
-                {0: ("edges_scaled", 0), 1: 3.0}),
+                {0: ("edges_scaled", 0), 1: 0.9}),
             "mix_color_worn": ("ShaderNodeMixRGB", {"blend_type": "DODGE"}, {
                 "Color1": ("inputs", "Color"), "Color2": Vector((*self.COLOR_WORN, 1)),
                 "Fac": ("color_worn_fac", 0)}),
-            "mix_color_scratches": ("ShaderNodeMixRGB", {"blend_type": "DARKEN"}, {
+            "color_scratches_fac": ("ShaderNodeMath", {"operation": "MULTIPLY"},
+                {0: ("scratches_filtered", 0), 1: 1.1}),
+            "mix_color_scratches": ("ShaderNodeMixRGB", {"blend_type": "SCREEN"}, {
                 "Color1": ("mix_color_worn", 0), "Color2": Vector((0.2, 0.2, 0.2, 1.0)),
-                "Fac": ("scratches_filtered", 0)}),
+                "Fac": ("color_scratches_fac", 0)}),
 
-            "roughness_worn": ("ShaderNodeMath", {"operation": "ADD"},
-                {0: ("inputs", "Roughness"), 1: ("edges_scaled", 0)}),
+            "roughness_worn": ("ShaderNodeMath", {"operation": "MULTIPLY_ADD"},
+                {0: ("edges_scaled", 0), 1: 0.2, 2: ("inputs", "Roughness")}),
 
             "bump_strength": ("ShaderNodeMath", {"operation": "MULTIPLY"},
                 {0: ("inputs", "Strength"), 1: ("roughness_fac", 0)}),
+            "bump_strength_fac": ("ShaderNodeMath", {"operation": "MULTIPLY"},
+                {0: ("bump_strength", 0), 1: 2.0}),
             "bump": ("ShaderNodeBump", {"invert": True}, {"Normal": ("inputs", "Normal"),
-                "Strength": ("bump_strength", 0), "Height": ("scratches_filtered", 0)}),
+                "Strength": ("bump_strength_fac", 0), "Height": ("scratches_filtered", 0)}),
         }
 
         outputs = {
