@@ -156,10 +156,13 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, ShaderNodeCustomGroup):
     }
 
     def init(self, context):
-        super().init(context)
         self.mat_color = self.mat_color_items(context)[1][0]
-        self.update_props(context)
-        self.update_bevel(context)
+        super().init(context)
+
+    def update_custom_node(self):
+        self.update_props(None)
+        self.update_bevel(None)
+        super().update_custom_node()
 
     def get_material(self):
         color = self.mat_color
