@@ -3,13 +3,11 @@ from .colors import *
 
 BASE_MATERIALS = {
     "plastic":             Material(roughness=0.4),
-    "plastic_transparent": Material(ior=1.46, transmission=0.5, transmission_roughness=0.05,
-                                    alpha=0.5),
+    "plastic_transparent": Material(ior=1.46, transmission=0.5, roughness=0.05, alpha=0.5),
     "metal":               Material(roughness=0.25, metallic=1.0),
-    "metal_painted":       Material(roughness=0.4, metallic=1.0, clearcoat=1.0,
-                                    clearcoat_roughness=0.4),
+    "metal_painted":       Material(roughness=0.4, metallic=1.0, coat=1.0, coat_roughness=0.4),
     "pcb":                 Material(roughness=0.4, subsurface_mm=1.0, transmission=0.25,
-                                    transmission_roughness=0.4, alpha=0.95),
+                                    alpha=0.95),
     "rubber":              Material(roughness=0.4, bevel_mm=0.2),
     "special":             Material(),
 }
@@ -32,12 +30,12 @@ BASE_MATERIAL_COLORS = {
 PLASTIC_VARIANTS = {
     "glossy": {"roughness": 0.15},
     "semi_matte": {"roughness": 0.4},
-    "matte": {"roughness": 0.8, "specular": 0.1, "clearcoat": 0.1, "clearcoat_roughness": 0.2},
+    "matte": {"roughness": 0.8, "specular": 0.1, "coat": 0.1, "coat_roughness": 0.2},
 }
 
 PLASTIC_TRANSPARENT_VARIANTS = {
-    "clear":    {"transmission_roughness": 0.05},
-    "diffused": {"transmission_roughness": 0.2},
+    "clear":    {"roughness": 0.05},
+    "diffused": {"roughness": 0.2},
 }
 
 METAL_VARIANTS = {

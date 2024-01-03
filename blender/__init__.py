@@ -3,28 +3,26 @@ from ..core import Material, hex2rgb, rgb2hex, srgb2lin, lin2srgb
 from .custom_node_utils import *
 
 import bpy
+from bl_ui import node_add_menu
 from bpy.props import EnumProperty, BoolProperty
 from mathutils import Vector
 
-from bpy.types import ShaderNodeCustomGroup
-from nodeitems_utils import NodeItem
-from nodeitems_builtins import ShaderNodeCategory
+from bpy.types import Menu, ShaderNodeCustomGroup
 
 def setup_principled_bsdf(self: Material, node_shader: bpy.types.ShaderNodeBsdfPrincipled):
     node_shader.inputs["Base Color"].default_value = (*srgb2lin(self.diffuse), 1.0)
     node_shader.inputs["Alpha"].default_value = self.alpha
     node_shader.inputs["Metallic"].default_value = self.metallic
     node_shader.inputs["Roughness"].default_value = self.roughness
-    node_shader.inputs["Subsurface"].default_value = self.subsurface_mm * 0.001
-    node_shader.inputs["Transmission"].default_value = self.transmission
-    node_shader.inputs["Transmission Roughness"].default_value = self.transmission_roughness
+    node_shader.inputs["Subsurface Weight"].default_value = self.subsurface_mm * 0.001
+    node_shader.inputs["Transmission Weight"].default_value = self.transmission
     node_shader.inputs["IOR"].default_value = self.ior
-    node_shader.inputs["Emission"].default_value = (*self.emission, 1.0)
-    node_shader.inputs["Clearcoat"].default_value = self.clearcoat
-    node_shader.inputs["Clearcoat Roughness"].default_value = self.clearcoat_roughness
+    node_shader.inputs["Emission Strength"].default_value = self.emission
+    node_shader.inputs["Emission Color"].default_value = (*self.emission_color, 1.0)
+    node_shader.inputs["Coat Weight"].default_value = self.coat
+    node_shader.inputs["Coat Roughness"].default_value = self.coat_roughness
 
     if self.subsurface_radius is not None:
-        node_shader.inputs["Subsurface Color"].default_value = (*srgb2lin(self.diffuse), 1.0)
         node_shader.inputs["Subsurface Radius"].default_value = self.subsurface_radius
 
 def setup_node_tree(self: Material, node_tree: bpy.types.NodeTree, force_principled=False):
@@ -316,24 +314,38 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
 
         self.init_node_tree(inputs, nodes, outputs)
 
-shader_node_category = ShaderNodeCategory("SH_NEW_MAT4CAD", "Mat4cad", items=(
-    NodeItem("ShaderNodeBsdfMat4cad"),
-    NodeItem("ShaderNodeMat4cadNoise"),
-    NodeItem("ShaderNodeMat4cadScratches"),
-))
+class NODE_MT_category_shader_mat4cad(Menu):
+    bl_idname = "NODE_MT_category_shader_mat4cad"
+    bl_label = "Mat4Cad"
+
+    def draw(self, context):
+        layout = self.layout
+
+        node_add_menu.add_node_type(layout, "ShaderNodeBsdfMat4cad")
+        node_add_menu.add_node_type(layout, "ShaderNodeMat4cadNoise")
+        node_add_menu.add_node_type(layout, "ShaderNodeMat4cadScratches")
+
+        node_add_menu.draw_assets_for_catalog(layout, self.bl_label)
+
+def menu_draw(self, context):
+    self.layout.separator()
+    self.layout.menu("NODE_MT_category_shader_mat4cad")
 
 classes = (
     ShaderNodeBsdfMat4cad,
     ShaderNodeMat4cadNoise,
     ShaderNodeMat4cadScratches,
+    NODE_MT_category_shader_mat4cad
 )
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-    register_node_category("SHADER", shader_node_category)
+
+    bpy.types.NODE_MT_shader_node_add_all.append(menu_draw)
 
 def unregister():
-    unregister_node_category("SHADER", shader_node_category)
+    bpy.types.NODE_MT_shader_node_add_all.remove(menu_draw)
+
     for cls in classes:
         bpy.utils.unregister_class(cls)

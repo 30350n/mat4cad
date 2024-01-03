@@ -12,11 +12,11 @@ class Material:
     subsurface_mm: float = 0.0
     subsurface_radius: Tuple[float, float, float] = None
     transmission: float = 0.0
-    transmission_roughness: float = 0.0
     ior: float = 1.45
-    emission: Tuple[float, float, float] = (0.0, 0.0, 0.0)
-    clearcoat: float = 0.0
-    clearcoat_roughness: float = 0.03
+    emission: float = 0.0
+    emission_color: Tuple[float, float, float] = (1.0, 1.0, 1.0)
+    coat: float = 0.0
+    coat_roughness: float = 0.03
     bevel_mm: float = 0.05
 
     name: str = None
