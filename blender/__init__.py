@@ -17,7 +17,7 @@ def setup_principled_bsdf(self: Material, node_shader: bpy.types.ShaderNodeBsdfP
     node_shader.inputs["Subsurface Weight"].default_value = self.subsurface_mm * 0.001
     node_shader.inputs["Transmission Weight"].default_value = self.transmission
     node_shader.inputs["IOR"].default_value = self.ior
-    node_shader.inputs["Emission Strength"].default_value = self.emission
+    node_shader.inputs["Emission Strength"].default_value = self.emission_strength
     node_shader.inputs["Emission Color"].default_value = (*self.emission_color, 1.0)
     node_shader.inputs["Coat Weight"].default_value = self.coat
     node_shader.inputs["Coat Roughness"].default_value = self.coat_roughness

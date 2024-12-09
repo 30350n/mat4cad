@@ -13,7 +13,7 @@ class Material:
     subsurface_radius: Tuple[float, float, float] = None
     transmission: float = 0.0
     ior: float = 1.45
-    emission: float = 0.0
+    emission_strength: float = 0.0
     emission_color: Tuple[float, float, float] = (1.0, 1.0, 1.0)
     coat: float = 0.0
     coat_roughness: float = 0.03
@@ -26,6 +26,10 @@ class Material:
 
     has_custom_color: bool = False
     custom_color: str = None
+
+    @property
+    def emission(self):
+        return tuple([component * self.emission_strength for component in self.emission_color])
 
     @property
     def transparency(self):
