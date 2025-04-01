@@ -55,22 +55,14 @@ RUBBER_VARIANTS = {
     "matte": {"roughness": 0.8},
 }
 
-PCB_VARIANTS = {
-    "default": {},
-}
-
-NO_VARIANTS = {
-    "default": {},
-}
-
 BASE_MATERIAL_VARIANTS = {
     "plastic": PLASTIC_VARIANTS,
     "plastic_transparent": PLASTIC_TRANSPARENT_VARIANTS,
     "metal": METAL_VARIANTS,
     "metal_painted": METAL_PAINTED_VARIANTS,
-    "pcb": PCB_VARIANTS,
+    "pcb": None,
     "rubber": RUBBER_VARIANTS,
-    "special": NO_VARIANTS,
+    "special": None,
 }
 
 SUBSURFACE_RADIUSES = {

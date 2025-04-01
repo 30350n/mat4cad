@@ -59,7 +59,7 @@ class Material:
 
         material = base.copy()
 
-        if custom_color_regex.match(color_str):
+        if _CUSTOM_COLOR_REGEX.match(color_str):
             material.has_custom_color = True
             material.custom_color = color_str.split("_")[1]
             material.diffuse = hex2rgb(material.custom_color)
@@ -72,13 +72,10 @@ class Material:
             else:
                 material.diffuse = color
 
-        variants = BASE_MATERIAL_VARIANTS[base_str]
-        if values := variants.get(variant_str):
-            for attr, value in values.items():
-                if isinstance(value, dict):
-                    if not (value := value.get(color_str)):
-                        continue
-                setattr(material, attr, value)
+        if variants := BASE_MATERIAL_VARIANTS[base_str]:
+            if values := variants.get(variant_str):
+                for attr, value in values.items():
+                    setattr(material, attr, value)
 
         if ssrs := SUBSURFACE_RADIUSES.get(base_str):
             if ssr := ssrs.get(color_str):
@@ -95,7 +92,7 @@ class Material:
         return copy(self)
 
 
-custom_color_regex = re.compile(r"^custom_[0-9A-Fa-f]{6}$")
+_CUSTOM_COLOR_REGEX = re.compile(r"^custom_[0-9A-Fa-f]{6}$")
 
 
 def hex2rgb(hex_string):

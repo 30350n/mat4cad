@@ -76,7 +76,7 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, ShaderNodeCustomGroup):
         return tuple(zip((name.upper() for name in colors), colors, ("",) * len(colors)))
 
     def mat_variant_items(self, context):
-        variants = BASE_MATERIAL_VARIANTS[self.mat_base.lower()]
+        variants = BASE_MATERIAL_VARIANTS[self.mat_base.lower()] or {"default": {}}
         return tuple(zip((name.upper() for name in variants), variants, ("",) * len(variants)))
 
     def update_props(self, context):
