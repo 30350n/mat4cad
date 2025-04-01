@@ -40,8 +40,8 @@ class Material:
     def shininess(self):
         return 1.0 - self.roughness
 
-    @staticmethod
-    def from_name(name: str):
+    @classmethod
+    def from_name(cls, name: str):
         from .materials import (
             BASE_MATERIAL_COLORS,
             BASE_MATERIAL_VARIANTS,
