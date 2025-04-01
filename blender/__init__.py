@@ -1,3 +1,5 @@
+from dataclasses import fields
+
 import bpy
 from bl_ui import node_add_menu
 from bpy.props import BoolProperty, EnumProperty
@@ -9,53 +11,55 @@ from ..materials import BASE_MATERIAL_COLORS, BASE_MATERIAL_VARIANTS, BASE_MATER
 from .custom_node_utils import *
 
 
-def setup_principled_bsdf(self: Material, node_shader: bpy.types.ShaderNodeBsdfPrincipled):
-    node_shader.inputs["Base Color"].default_value = (*srgb2lin(self.diffuse), 1.0)
-    node_shader.inputs["Alpha"].default_value = self.alpha
-    node_shader.inputs["Metallic"].default_value = self.metallic
-    node_shader.inputs["Roughness"].default_value = self.roughness
-    node_shader.inputs["Subsurface Weight"].default_value = self.subsurface_mm * 0.001
-    node_shader.inputs["Transmission Weight"].default_value = self.transmission
-    node_shader.inputs["IOR"].default_value = self.ior
-    node_shader.inputs["Emission Strength"].default_value = self.emission_strength
-    node_shader.inputs["Emission Color"].default_value = (*self.emission_color, 1.0)
-    node_shader.inputs["Coat Weight"].default_value = self.coat
-    node_shader.inputs["Coat Roughness"].default_value = self.coat_roughness
+class BlenderMaterial(Material):
+    def setup_principled_bsdf(self, node_shader: bpy.types.ShaderNodeBsdfPrincipled):
+        node_shader.inputs["Base Color"].default_value = (*srgb2lin(self.diffuse), 1.0)
+        node_shader.inputs["Alpha"].default_value = self.alpha
+        node_shader.inputs["Metallic"].default_value = self.metallic
+        node_shader.inputs["Roughness"].default_value = self.roughness
+        node_shader.inputs["Subsurface Weight"].default_value = self.subsurface_mm * 0.001
+        node_shader.inputs["Transmission Weight"].default_value = self.transmission
+        node_shader.inputs["IOR"].default_value = self.ior
+        node_shader.inputs["Emission Strength"].default_value = self.emission_strength
+        node_shader.inputs["Emission Color"].default_value = (*self.emission_color, 1.0)
+        node_shader.inputs["Coat Weight"].default_value = self.coat
+        node_shader.inputs["Coat Roughness"].default_value = self.coat_roughness
 
-    if self.subsurface_radius is not None:
-        node_shader.inputs["Subsurface Radius"].default_value = self.subsurface_radius
+        if self.subsurface_radius is not None:
+            node_shader.inputs["Subsurface Radius"].default_value = self.subsurface_radius
 
+    def setup_node_tree(self, node_tree: bpy.types.NodeTree, force_principled=False):
+        node_tree.nodes.clear()
+        if self.base and not force_principled:
+            node_shader = node_tree.nodes.new("ShaderNodeBsdfMat4cad")
+            node_shader.mat_base = self.base.upper()
+            node_shader.mat_variant = self.variant.upper()
 
-def setup_node_tree(self: Material, node_tree: bpy.types.NodeTree, force_principled=False):
-    node_tree.nodes.clear()
-    if self.base and not force_principled:
-        node_shader = node_tree.nodes.new("ShaderNodeBsdfMat4cad")
-        node_shader.mat_base = self.base.upper()
-        node_shader.mat_variant = self.variant.upper()
-
-        if self.has_custom_color:
-            node_shader.mat_color = "CUSTOM"
-            node_shader.inputs["Color"].default_value = (*srgb2lin(self.diffuse), 1.0)
+            if self.has_custom_color:
+                node_shader.mat_color = "CUSTOM"
+                node_shader.inputs["Color"].default_value = (*srgb2lin(self.diffuse), 1.0)
+            else:
+                node_shader.mat_color = self.color.upper()
         else:
-            node_shader.mat_color = self.color.upper()
-    else:
-        node_shader = node_tree.nodes.new("ShaderNodeBsdfPrincipled")
-        self.setup_principled_bsdf(node_shader)
+            node_shader = node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+            self.setup_principled_bsdf(node_shader)
 
-        node_bevel = node_tree.nodes.new("ShaderNodeBevel")
-        node_bevel.location = (-180, -530.5)
-        node_bevel.inputs["Radius"].default_value = self.bevel_mm * 0.001
-        node_tree.links.new(node_shader.inputs["Normal"], node_bevel.outputs[0])
+            node_bevel = node_tree.nodes.new("ShaderNodeBevel")
+            node_bevel.location = (-180, -530.5)
+            node_bevel.inputs["Radius"].default_value = self.bevel_mm * 0.001
+            node_tree.links.new(node_shader.inputs["Normal"], node_bevel.outputs[0])
 
-    node_output = node_tree.nodes.new("ShaderNodeOutputMaterial")
-    node_output.location = (300, 0)
-    node_tree.links.new(node_output.inputs["Surface"], node_shader.outputs[0])
+        node_output = node_tree.nodes.new("ShaderNodeOutputMaterial")
+        node_output.location = (300, 0)
+        node_tree.links.new(node_output.inputs["Surface"], node_shader.outputs[0])
 
-    return node_tree
+        return node_tree
 
-
-setattr(Material, setup_principled_bsdf.__name__, setup_principled_bsdf)
-setattr(Material, setup_node_tree.__name__, setup_node_tree)
+    @classmethod
+    def from_name(cls, name: str):
+        if not (material := Material.from_name(name)):
+            return None
+        return BlenderMaterial(**{f.name: getattr(material, f.name) for f in fields(material)})
 
 
 class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, ShaderNodeCustomGroup):
