@@ -1,4 +1,8 @@
-[tool.autopep8]
-aggressive = 3
-max_line_length = 96
-ignore = "E12,E13,E201,E202,E221,E241,E261,E302,E305,E401,E402"
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+line-ending = "lf"
+
+[tool.ruff.lint.isort]
+combine-as-imports = true

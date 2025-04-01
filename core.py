@@ -1,7 +1,8 @@
 import re
-from dataclasses import dataclass
 from copy import copy
+from dataclasses import dataclass
 from typing import Tuple
+
 
 @dataclass
 class Material:
@@ -42,7 +43,10 @@ class Material:
     @staticmethod
     def from_name(name: str):
         from .materials import (
-            BASE_MATERIALS, BASE_MATERIAL_COLORS, BASE_MATERIAL_VARIANTS, SUBSURFACE_RADIUSES
+            BASE_MATERIAL_COLORS,
+            BASE_MATERIAL_VARIANTS,
+            BASE_MATERIALS,
+            SUBSURFACE_RADIUSES,
         )
 
         if name.count("-") != 2:
@@ -90,7 +94,9 @@ class Material:
     def copy(self):
         return copy(self)
 
+
 custom_color_regex = re.compile(r"^custom_[0-9A-Fa-f]{6}$")
+
 
 def hex2rgb(hex_string):
     return (
@@ -99,12 +105,16 @@ def hex2rgb(hex_string):
         int(hex_string[4:6], 16) / 255,
     )
 
+
 def rgb2hex(rgb):
-    return "".join((
-        f"{int(rgb[0] * 255):02x}",
-        f"{int(rgb[1] * 255):02x}",
-        f"{int(rgb[2] * 255):02x}",
-    ))
+    return "".join(
+        (
+            f"{int(rgb[0] * 255):02x}",
+            f"{int(rgb[1] * 255):02x}",
+            f"{int(rgb[2] * 255):02x}",
+        )
+    )
+
 
 def srgb2lin(color):
     result = []
