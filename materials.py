@@ -1,5 +1,5 @@
-from .colors import *
-from .core import Material
+from .colors import METAL_COLORS, PCB_COLORS, RAL_COLORS
+from .core import Material, hex2rgb
 
 BASE_MATERIALS = {
     "plastic": Material(roughness=0.4),

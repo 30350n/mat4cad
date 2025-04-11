@@ -1,19 +1,6 @@
 from .core import hex2rgb
 
-RAL_COLORS = {
-    "mouse_grey": hex2rgb("6b6e6b"),
-    "pure_white": hex2rgb("f0ede1"),
-    "jet_black": hex2rgb("0e0e10"),
-    "signal_yellow": hex2rgb("f2a900"),
-    "signal_orange": hex2rgb("cc5d29"),
-    "signal_red": hex2rgb("982323"),
-    "signal_violet": hex2rgb("874b83"),
-    "signal_blue": hex2rgb("005187"),
-    "signal_green": hex2rgb("1c8051"),
-    "signal_grey": hex2rgb("9b9b9b"),
-    "signal_brown": hex2rgb("774d3e"),
-    "signal_white": hex2rgb("ecece7"),
-    "signal_black": hex2rgb("2b2b2c"),
+_RAL_COLORS = {
     # yellow
     "green_beige": hex2rgb("c9bb88"),
     "beige": hex2rgb("ccb083"),
@@ -238,6 +225,27 @@ RAL_COLORS = {
     "pearl_dark_grey": hex2rgb("797b7b"),
 }
 
+# sort some grey tones and all the signal colors to the front
+RAL_COLORS = {
+    key: _RAL_COLORS[key]
+    for key in (
+        "mouse_grey",
+        "pure_white",
+        "jet_black",
+        "signal_yellow",
+        "signal_orange",
+        "signal_red",
+        "signal_violet",
+        "signal_blue",
+        "signal_green",
+        "signal_grey",
+        "signal_brown",
+        "signal_white",
+        "signal_black",
+    )
+} | _RAL_COLORS
+
+
 PCB_COLORS = {
     "pcb_brown": hex2rgb("452700"),
     "pcb_yellow": hex2rgb("a4a858"),
@@ -260,6 +268,3 @@ METAL_COLORS = {
 }
 
 ALL_COLORS = {**RAL_COLORS, **PCB_COLORS, **METAL_COLORS}
-
-for name, color in ALL_COLORS.items():
-    globals()[name.upper()] = color

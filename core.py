@@ -1,32 +1,32 @@
 import re
 from copy import copy
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Sequence
 
 
 @dataclass
 class Material:
-    diffuse: Tuple[float, float, float] = (0.8, 0.8, 0.8)
+    diffuse: tuple[float, float, float] = (0.8, 0.8, 0.8)
     alpha: float = 1.0
     metallic: float = 0.0
     roughness: float = 0.8
     subsurface_mm: float = 0.0
-    subsurface_radius: Tuple[float, float, float] = None
+    subsurface_radius: tuple[float, float, float] | None = None
     transmission: float = 0.0
     ior: float = 1.45
     emission_strength: float = 0.0
-    emission_color: Tuple[float, float, float] = (1.0, 1.0, 1.0)
+    emission_color: tuple[float, float, float] = (1.0, 1.0, 1.0)
     coat: float = 0.0
     coat_roughness: float = 0.03
     bevel_mm: float = 0.05
 
-    name: str = None
-    base: str = None
-    color: str = None
-    variant: str = None
+    name: str | None = None
+    base: str | None = None
+    color: str | None = None
+    variant: str | None = None
 
     has_custom_color: bool = False
-    custom_color: str = None
+    custom_color: str | None = None
 
     @property
     def emission(self):
@@ -94,8 +94,10 @@ class Material:
 
 _CUSTOM_COLOR_REGEX = re.compile(r"^custom_[0-9A-Fa-f]{6}$")
 
+ColorTuple = tuple[float, float, float]
 
-def hex2rgb(hex_string):
+
+def hex2rgb(hex_string: str) -> ColorTuple:
     return (
         int(hex_string[0:2], 16) / 255,
         int(hex_string[2:4], 16) / 255,
@@ -103,7 +105,7 @@ def hex2rgb(hex_string):
     )
 
 
-def rgb2hex(rgb):
+def rgb2hex(rgb: Sequence[float]):
     return "".join(
         (
             f"{int(rgb[0] * 255):02x}",
@@ -113,23 +115,29 @@ def rgb2hex(rgb):
     )
 
 
-def srgb2lin(color):
-    result = []
-    for srgb in color:
+def srgb2lin(color: Sequence[float]) -> ColorTuple:
+    def _srgb2lin(srgb: float):
         if srgb <= 0.0404482362771082:
-            lin = srgb / 12.92
+            return srgb / 12.92
         else:
-            lin = pow(((srgb + 0.055) / 1.055), 2.4)
-        result.append(lin)
-    return result
+            return pow(((srgb + 0.055) / 1.055), 2.4)
+
+    return (
+        _srgb2lin(color[0]),
+        _srgb2lin(color[1]),
+        _srgb2lin(color[2]),
+    )
 
 
-def lin2srgb(color):
-    result = []
-    for lin in color:
+def lin2srgb(color: Sequence[float]) -> ColorTuple:
+    def _lin2srgb(lin: float):
         if lin > 0.0031308:
-            srgb = 1.055 * (pow(lin, (1.0 / 2.4))) - 0.055
+            return 1.055 * (pow(lin, (1.0 / 2.4))) - 0.055
         else:
-            srgb = 12.92 * lin
-        result.append(srgb)
-    return result
+            return 12.92 * lin
+
+    return (
+        _lin2srgb(color[0]),
+        _lin2srgb(color[1]),
+        _lin2srgb(color[2]),
+    )

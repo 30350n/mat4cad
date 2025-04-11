@@ -1,14 +1,26 @@
 from dataclasses import fields
+from typing import Literal, cast, overload
 
 import bpy
 from bl_ui import node_add_menu
 from bpy.props import BoolProperty, EnumProperty
-from bpy.types import Menu, ShaderNodeCustomGroup
+from bpy.types import (
+    NodeSocketColor,
+    NodeSocketFloat,
+    NodeSocketShader,
+    NodeSocketVector,
+)
 from mathutils import Vector
 
 from ..core import Material, hex2rgb, lin2srgb, rgb2hex, srgb2lin
 from ..materials import BASE_MATERIAL_COLORS, BASE_MATERIAL_VARIANTS, BASE_MATERIALS
-from .custom_node_utils import *
+from .custom_node_utils import (
+    CustomNodetreeNodeBase,
+    InputsDef,
+    NodesDef,
+    OutputsDef,
+    SharedCustomNodetreeNodeBase,
+)
 
 
 class BlenderMaterial(Material):
@@ -28,20 +40,24 @@ class BlenderMaterial(Material):
         if self.subsurface_radius is not None:
             node_shader.inputs["Subsurface Radius"].default_value = self.subsurface_radius
 
-    def setup_node_tree(self, node_tree: bpy.types.NodeTree, force_principled=False):
+    def setup_node_tree(self, node_tree: bpy.types.NodeTree, force_principled: bool = False):
         node_tree.nodes.clear()
-        if self.base and not force_principled:
-            node_shader = node_tree.nodes.new("ShaderNodeBsdfMat4cad")
-            node_shader.mat_base = self.base.upper()
-            node_shader.mat_variant = self.variant.upper()
+
+        if self.base and self.variant and not force_principled:
+            node_mat4cad = cast(ShaderNodeBsdfMat4cad, node_tree.nodes.new("ShaderNodeBsdfMat4cad"))
+            shader_output = node_mat4cad.outputs[0]
+            node_mat4cad.mat_base = self.base.upper()
+            node_mat4cad.mat_variant = self.variant.upper()
 
             if self.has_custom_color:
-                node_shader.mat_color = "CUSTOM"
-                node_shader.inputs["Color"].default_value = (*srgb2lin(self.diffuse), 1.0)
+                node_mat4cad.mat_color = "CUSTOM"
+                node_mat4cad.inputs["Color"].default_value = (*srgb2lin(self.diffuse), 1.0)
             else:
-                node_shader.mat_color = self.color.upper()
+                assert self.color
+                node_mat4cad.mat_color = self.color.upper()
         else:
             node_shader = node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+            shader_output = node_shader.outputs[0]
             self.setup_principled_bsdf(node_shader)
 
             node_bevel = node_tree.nodes.new("ShaderNodeBevel")
@@ -51,7 +67,7 @@ class BlenderMaterial(Material):
 
         node_output = node_tree.nodes.new("ShaderNodeOutputMaterial")
         node_output.location = (300, 0)
-        node_tree.links.new(node_output.inputs["Surface"], node_shader.outputs[0])
+        node_tree.links.new(node_output.inputs["Surface"], shader_output)
 
         return node_tree
 
@@ -62,7 +78,7 @@ class BlenderMaterial(Material):
         return BlenderMaterial(**{f.name: getattr(material, f.name) for f in fields(material)})
 
 
-class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, ShaderNodeCustomGroup):
+class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase):
     bl_label = "Mat4cad BSDF"
     bl_width_default = 180
 
@@ -71,29 +87,31 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, ShaderNodeCustomGroup):
         mats = BASE_MATERIALS
         return tuple(zip((name.upper() for name in mats), mats, ("",) * len(mats)))
 
-    def mat_color_items(self, context):
+    def mat_color_items(self, context: bpy.types.Context | None):
         colors = ("custom", *BASE_MATERIAL_COLORS[self.mat_base.lower()].keys())
         return tuple(zip((name.upper() for name in colors), colors, ("",) * len(colors)))
 
-    def mat_variant_items(self, context):
+    def mat_variant_items(self, context: bpy.types.Context | None):
         variants = BASE_MATERIAL_VARIANTS[self.mat_base.lower()] or {"default": {}}
         return tuple(zip((name.upper() for name in variants), variants, ("",) * len(variants)))
 
-    def update_props(self, context):
+    def update_props(self, context: bpy.types.Context):
         if not self.mat_color:
             self.mat_color = self.mat_color_items(context)[1][0]
         if not self.mat_variant:
             self.mat_variant = self.mat_variant_items(context)[0][0]
 
-        material = self.get_material()
-        material.setup_principled_bsdf(self.node_tree.nodes["shader"])
+        material = self.mat4cad_material
+        material.setup_principled_bsdf(self.node_shader)
 
         self.inputs["Color"].default_value = (*srgb2lin(material.diffuse), 1.0)
         self.inputs["Color"].hide = not material.has_custom_color
 
-        self.node_tree.name = f"MAT4CAD_{material.name}"
-        self.node_tree.nodes["metallic"].outputs[0].default_value = material.metallic
-        self.node_tree.nodes["roughness"].outputs[0].default_value = material.roughness
+        self.node_metallic.outputs[0].default_value = material.metallic
+        self.node_roughness.outputs[0].default_value = material.roughness
+
+        assert (node_tree := self.node_tree)
+        node_tree.name = f"MAT4CAD_{material.name}"
 
         self.update_bevel(context)
 
@@ -101,22 +119,51 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, ShaderNodeCustomGroup):
     mat_color: EnumProperty(name="Color", update=update_props, items=mat_color_items)
     mat_variant: EnumProperty(name="Variant", update=update_props, items=mat_variant_items)
 
-    def update_bevel(self, context):
-        material = self.get_material()
-        bevel = material.bevel_mm * 0.001 if self.use_bevel else 0
-        self.node_tree.nodes["bevel"].inputs["Radius"].default_value = bevel
+    def update_bevel(self, context: bpy.types.Context):
+        bevel = self.mat4cad_material.bevel_mm * 0.001 if self.use_bevel else 0
+        self.node_bevel.inputs["Radius"].default_value = bevel
 
     use_bevel: BoolProperty(name="Bevel", update=update_bevel, default=True)
 
-    def init(self, context):
-        inputs = {
+    @property
+    def mat4cad_material(self):
+        color = self.mat_color
+        if color == "CUSTOM":
+            color = "custom_" + rgb2hex(lin2srgb(self.inputs["Color"].default_value[:3]))
+        material_name = "-".join((self.mat_base, color, self.mat_variant)).lower()
+        assert (material := BlenderMaterial.from_name(material_name))
+        return material
+
+    @property
+    def node_shader(self):
+        assert (node_tree := self.node_tree)
+        assert (node := node_tree.nodes["shader"])
+        return cast(bpy.types.ShaderNodeBsdfPrincipled, node)
+
+    @property
+    def node_bevel(self):
+        assert (node_tree := self.node_tree) and (node := node_tree.nodes["bevel"])
+        return cast(bpy.types.ShaderNodeBevel, node)
+
+    @property
+    def node_metallic(self):
+        assert (node_tree := self.node_tree) and (node := node_tree.nodes["metallic"])
+        return cast(bpy.types.ShaderNodeValue, node)
+
+    @property
+    def node_roughness(self):
+        assert (node_tree := self.node_tree) and (node := node_tree.nodes["roughness"])
+        return cast(bpy.types.ShaderNodeValue, node)
+
+    def init(self, context: bpy.types.Context):
+        inputs: InputsDef = {
             "Color": ("NodeSocketColor", {"default_value": (0.5, 0.5, 0.5, 1.0)}),
             "Texture Strength": ("NodeSocketFloat", {"default_value": 0.5}),
             "Scratches": ("NodeSocketFloat", {"default_value": 0.5}),
             "Normal": ("NodeSocketVector", {"hide_value": True}),
         }
 
-        nodes = {
+        nodes: NodesDef = {
             "metallic": ("ShaderNodeValue", {}, {}),
             "roughness": ("ShaderNodeValue", {}, {}),
             "tex_strength_metal_fac": (
@@ -183,7 +230,7 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, ShaderNodeCustomGroup):
             ),
         }
 
-        outputs = {
+        outputs: OutputsDef = {
             "BSDF": ("NodeSocketShader", {}, ("shader", 0)),
         }
 
@@ -192,20 +239,30 @@ class ShaderNodeBsdfMat4cad(CustomNodetreeNodeBase, ShaderNodeCustomGroup):
         self.update_props(context)
         self.update_bevel(context)
 
-    def get_material(self):
-        color = self.mat_color
-        if color == "CUSTOM":
-            color = "custom_" + rgb2hex(lin2srgb(self.inputs["Color"].default_value[:3]))
-        material_name = "-".join((self.mat_base, color, self.mat_variant)).lower()
-        return Material.from_name(material_name)
+    class NodeInputs(bpy.types.NodeInputs):
+        @overload
+        def __getitem__(self, key: Literal[0] | Literal["Color"]) -> NodeSocketColor: ...  # pyright: ignore[reportNoOverloadImplementation]
+        @overload
+        def __getitem__(self, key: Literal[1] | Literal["Texture Strength"]) -> NodeSocketFloat: ...
+        @overload
+        def __getitem__(self, key: Literal[2] | Literal["Scratches"]) -> NodeSocketFloat: ...
+        @overload
+        def __getitem__(self, key: Literal[3] | Literal["Normal"]) -> NodeSocketVector: ...  # pyright: ignore[reportIncompatibleMethodOverride]
+
+    inputs: NodeInputs  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    class NodeOutputs(bpy.types.NodeOutputs):
+        def __getitem__(self, key: Literal[0] | Literal["BSDF"]) -> NodeSocketShader: ...  # pyright: ignore[reportIncompatibleMethodOverride]
+
+    outputs: NodeOutputs  # pyright: ignore[reportIncompatibleVariableOverride]
 
 
-class ShaderNodeMat4cadNoise(SharedCustomNodetreeNodeBase, ShaderNodeCustomGroup):
+class ShaderNodeMat4cadNoise(SharedCustomNodetreeNodeBase):
     bl_label = "Mat4cad Noise"
     bl_width_default = 140
 
-    def init(self, context):
-        inputs = {
+    def init(self, context: bpy.types.Context):
+        inputs: InputsDef = {
             "Roughness": ("NodeSocketFloat", {"hide_value": True, "default_value": 0.5}),
             "Normal": ("NodeSocketVector", {"hide_value": True}),
             "Strength": ("NodeSocketFloat", {"default_value": 0.5}),
@@ -213,7 +270,7 @@ class ShaderNodeMat4cadNoise(SharedCustomNodetreeNodeBase, ShaderNodeCustomGroup
             "Scale": ("NodeSocketFloat", {"default_value": 0.5}),
         }
 
-        nodes = {
+        nodes: NodesDef = {
             "noise_scale": (
                 "ShaderNodeMath",
                 {"operation": "MULTIPLY"},
@@ -277,7 +334,7 @@ class ShaderNodeMat4cadNoise(SharedCustomNodetreeNodeBase, ShaderNodeCustomGroup
             ),
         }
 
-        outputs = {
+        outputs: OutputsDef = {
             "Roughness": ("NodeSocketFloat", {}, ("roughness_mapped", 0)),
             "Normal": ("NodeSocketVector", {}, ("bump", 0)),
         }
@@ -285,14 +342,14 @@ class ShaderNodeMat4cadNoise(SharedCustomNodetreeNodeBase, ShaderNodeCustomGroup
         self.init_node_tree(inputs, nodes, outputs)
 
 
-class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomGroup):
+class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase):
     bl_label = "Mat4cad Scratches"
     bl_width_default = 140
 
     COLOR_WORN = srgb2lin(hex2rgb("A0A060"))
 
-    def init(self, context):
-        inputs = {
+    def init(self, context: bpy.types.Context):
+        inputs: InputsDef = {
             "Color": (
                 "NodeSocketColor",
                 {"hide_value": True, "default_value": (0.5, 0.5, 0.5, 1.0)},
@@ -305,7 +362,7 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
             "Scale": ("NodeSocketFloat", {"default_value": 0.5}),
         }
 
-        nodes = {
+        nodes: NodesDef = {
             "tex_coord": ("ShaderNodeTexCoord", {}, {}),
             "edges_bevel": (
                 "ShaderNodeBevel",
@@ -483,7 +540,7 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
             ),
         }
 
-        outputs = {
+        outputs: OutputsDef = {
             "Color": ("NodeSocketColor", {}, ("mix_color_scratches", 0)),
             "Roughness": ("NodeSocketFloat", {}, ("roughness_worn", 0)),
             "Normal": ("NodeSocketVector", {}, ("bump", 0)),
@@ -492,11 +549,11 @@ class ShaderNodeMat4cadScratches(SharedCustomNodetreeNodeBase, ShaderNodeCustomG
         self.init_node_tree(inputs, nodes, outputs)
 
 
-class NODE_MT_category_shader_mat4cad(Menu):
+class NODE_MT_category_shader_mat4cad(bpy.types.Menu):
     bl_idname = "NODE_MT_category_shader_mat4cad"
     bl_label = "Mat4Cad"
 
-    def draw(self, context):
+    def draw(self, context: bpy.types.Context):
         layout = self.layout
 
         node_add_menu.add_node_type(layout, "ShaderNodeBsdfMat4cad")
@@ -506,7 +563,8 @@ class NODE_MT_category_shader_mat4cad(Menu):
         node_add_menu.draw_assets_for_catalog(layout, self.bl_label)
 
 
-def menu_draw(self, context):
+def menu_draw(self: bpy.types.Menu, context: bpy.types.Context):
+    assert self.layout
     self.layout.separator()
     self.layout.menu("NODE_MT_category_shader_mat4cad")
 
